@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Cemiterio } from "@/components/Cemiterio";
 import { Ritual } from "@/components/Ritual";
@@ -24,7 +23,7 @@ export function Experiencia() {
   return (
     <Ritual
       acao={
-        <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+        <div className="flex flex-col items-start gap-3">
           <button
             type="button"
             onClick={() => {
@@ -37,10 +36,7 @@ export function Experiencia() {
           >
             Entrar e escanear
           </button>
-          <Link href="/maquete" onClick={() => tocarMusica()} className="btn-line w-full sm:w-auto">
-            Ver sem câmera
-          </Link>
-          {erro ? <p className="aviso w-full sm:w-auto">{erro}</p> : null}
+          {erro ? <p className="aviso">{erro}</p> : null}
         </div>
       }
     />
