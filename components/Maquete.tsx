@@ -8,6 +8,7 @@ import { loadThree } from "@/lib/mindar";
 
 export function Maquete() {
   const palcoRef = useRef<HTMLDivElement>(null);
+  const distanciaRef = useRef(2.5);
 
   useEffect(() => {
     const palco = palcoRef.current;
@@ -18,6 +19,7 @@ export function Maquete() {
     let limpar = () => {};
 
     const montar = async () => {
+      try {
       const THREE = await loadThree();
       if (parado || !palco) return;
 
@@ -43,6 +45,13 @@ export function Maquete() {
       scene.add(cemiterio.group);
       cemiterio.surgir();
 
+      const pedida = Number(
+        new URLSearchParams(window.location.search).get("distancia"),
+      );
+      if (Number.isFinite(pedida) && pedida > 0) {
+        distanciaRef.current = pedida;
+      }
+
       const relogio = new THREE.Clock();
       const ajustar = () => {
         const largura = palco.clientWidth;
@@ -55,9 +64,10 @@ export function Maquete() {
       window.addEventListener("resize", ajustar);
 
       const desenhar = () => {
-        const tempo = relogio.getElapsedTime();
-        camera.position.set(Math.sin(tempo * 0.25) * 0.55, -1.2, 2.15);
-        camera.lookAt(0, 0, 0);
+        const distancia = distanciaRef.current;
+        const perto = Math.min(1, Math.max(0, (3.3 - distancia) / 2.15));
+        camera.position.set(0, -0.85 - perto * 0.7, 2.55 - perto * 1.45);
+        camera.lookAt(0, -perto * 0.68, 0.05);
         cemiterio.update(camera, relogio.getDelta());
         renderer.render(scene, camera);
         quadro = window.requestAnimationFrame(desenhar);
@@ -70,6 +80,9 @@ export function Maquete() {
         renderer.dispose();
         renderer.domElement.remove();
       };
+      } catch (error) {
+        console.error(error);
+      }
     };
 
     void montar();
@@ -83,12 +96,25 @@ export function Maquete() {
   return (
     <div className="fixed inset-0 bg-ink text-bone">
       <div ref={palcoRef} className="absolute inset-0" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 px-4 pt-6 text-center">
-        <p className="mx-auto max-w-sm rounded-full bg-ink/80 px-4 py-2 font-sans text-sm">
-          Maquete sem câmera, para conferir o anel de lápides.
+      <div className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 px-4 pb-6">
+        <p className="max-w-sm rounded-full bg-ink/80 px-4 py-2 text-center font-sans text-sm">
+          Arraste para chegar perto de uma lápide. A frase nasce em cima dela.
         </p>
-      </div>
-      <div className="absolute inset-x-0 bottom-0 flex justify-center px-4 pb-6">
+        <label className="flex w-full max-w-xs items-center gap-3 rounded-full bg-ink/80 px-4 py-2 font-sans text-xs tracking-wide text-bone/80 uppercase">
+          Aproximar
+          <input
+            type="range"
+            min={1.15}
+            max={3.3}
+            step={0.01}
+            defaultValue={2.5}
+            aria-label="Aproximar a câmera"
+            className="w-full accent-ember"
+            onChange={(event) => {
+              distanciaRef.current = Number(event.target.value);
+            }}
+          />
+        </label>
         <Link
           href="/"
           className="flex h-12 items-center rounded-full border border-bone/30 bg-ink/80 px-5 font-sans text-sm"

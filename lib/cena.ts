@@ -1,4 +1,4 @@
-import type { Camera, Group, Mesh, Object3D } from "three";
+import type { Camera, Group, Mesh, MeshBasicMaterial, Object3D } from "three";
 import type * as ThreeTypes from "three";
 import type { Amigo, Simbolo } from "@/lib/amigos";
 
@@ -13,12 +13,18 @@ export type CenaCemiterio = {
 const RAIO_X = 0.98;
 const RAIO_Y = 0.7;
 
+type Lapide = {
+  pedra: Mesh;
+  letreiro: Mesh;
+  material: MeshBasicMaterial;
+};
+
 export function criarCemiterio(
   THREE: ThreeModule,
   amigos: Amigo[],
 ): CenaCemiterio {
   const group = new THREE.Group();
-  const pedras: Mesh[] = [];
+  const lapides: Lapide[] = [];
   const morcegos = new THREE.Group();
   const texturaMorcego = texturaDeCanvas(THREE, desenharMorcego());
 
@@ -38,8 +44,17 @@ export function criarCemiterio(
       Math.sin(angulo) * RAIO_Y,
       0.02,
     );
-    group.add(pedra);
-    pedras.push(pedra);
+    const material = new THREE.MeshBasicMaterial({
+      map: texturaDeCanvas(THREE, desenharFrase(amigo.frase)),
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+    const letreiro = new THREE.Mesh(new THREE.PlaneGeometry(0.56, 0.24), material);
+    letreiro.visible = false;
+    group.add(pedra, letreiro);
+    lapides.push({ pedra, letreiro, material });
   });
 
   const anel = new THREE.Mesh(
@@ -87,18 +102,69 @@ export function criarCemiterio(
       }
       const curva = 1 - (1 - subida) ** 3;
       group.scale.setScalar(Math.max(0.001, curva));
+      group.parent?.updateMatrixWorld(true);
       morcegos.rotation.z += delta * 0.65;
 
       const cameraNoMundo = new THREE.Vector3();
       camera.getWorldPosition(cameraNoMundo);
-      for (const pedra of pedras) {
-        pedra.lookAt(cameraNoMundo);
+      const posicao = new THREE.Vector3();
+      const projetado = new THREE.Vector3();
+      let escolhida: Lapide | null = null;
+      let distanciaAoCentro = Infinity;
+
+      for (const lapide of lapides) {
+        lapide.pedra.lookAt(cameraNoMundo);
+        lapide.pedra.getWorldPosition(posicao);
+        projetado.copy(posicao).project(camera);
+        const naTela =
+          projetado.z < 1 &&
+          Math.abs(projetado.x) < 1.05 &&
+          Math.abs(projetado.y) < 1.05;
+        const aoCentro = Math.hypot(projetado.x, projetado.y);
+        if (naTela && aoCentro < distanciaAoCentro) {
+          distanciaAoCentro = aoCentro;
+          escolhida = lapide;
+        }
       }
+
+      const zoom = escolhida
+        ? aproximacaoDaPedra(THREE, escolhida.pedra, camera)
+        : 0;
+      const mira = THREE.MathUtils.clamp(1 - distanciaAoCentro / 0.5, 0, 1);
+
+      for (const lapide of lapides) {
+        const alvo = lapide === escolhida ? zoom * mira : 0;
+        const passo = Math.min(1, delta * 8);
+        lapide.material.opacity += (alvo - lapide.material.opacity) * passo;
+        lapide.letreiro.visible = lapide.material.opacity > 0.04;
+        const topo = new THREE.Vector3(0, 0.36, 0);
+        lapide.pedra.localToWorld(topo);
+        group.worldToLocal(topo);
+        lapide.letreiro.position.copy(topo);
+        lapide.letreiro.lookAt(cameraNoMundo);
+      }
+
       for (const morcego of morcegos.children) {
         (morcego as Object3D).lookAt(cameraNoMundo);
       }
     },
   };
+}
+
+function aproximacaoDaPedra(
+  THREE: ThreeModule,
+  pedra: Mesh,
+  camera: Camera,
+) {
+  pedra.updateMatrixWorld(true);
+  const baixo = new THREE.Vector3(0, -0.26, 0);
+  const cima = new THREE.Vector3(0, 0.26, 0);
+  pedra.localToWorld(baixo);
+  pedra.localToWorld(cima);
+  baixo.project(camera);
+  cima.project(camera);
+  const altura = Math.hypot(baixo.x - cima.x, baixo.y - cima.y);
+  return THREE.MathUtils.clamp((altura - 0.2) / 0.16, 0, 1);
 }
 
 function texturaDeCanvas(THREE: ThreeModule, canvas: HTMLCanvasElement) {
@@ -190,6 +256,50 @@ function desenharSimbolo(ctx: CanvasRenderingContext2D, simbolo: Simbolo) {
   ctx.beginPath();
   ctx.ellipse(0, -28, 16, 24, 0, 0, Math.PI * 2);
   ctx.fill();
+}
+
+function desenharFrase(frase: string) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 384;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return canvas;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "rgba(26, 18, 12, 0.88)";
+  ctx.beginPath();
+  ctx.roundRect(20, 70, 984, 244, 40);
+  ctx.fill();
+  ctx.fillStyle = "#f3e6c8";
+  ctx.font = "600 58px Georgia, serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const linhas = quebrarLinhas(ctx, frase, 900);
+  const topo = 192 - ((linhas.length - 1) * 68) / 2;
+  linhas.forEach((linha, index) => {
+    ctx.fillText(linha, 512, topo + index * 68);
+  });
+  return canvas;
+}
+
+function quebrarLinhas(
+  ctx: CanvasRenderingContext2D,
+  frase: string,
+  largura: number,
+) {
+  const linhas: string[] = [];
+  let atual = "";
+  for (const palavra of frase.split(" ")) {
+    const tentativa = atual ? `${atual} ${palavra}` : palavra;
+    if (ctx.measureText(tentativa).width > largura && atual) {
+      linhas.push(atual);
+      atual = palavra;
+    } else {
+      atual = tentativa;
+    }
+  }
+  if (atual) linhas.push(atual);
+  return linhas.slice(0, 3);
 }
 
 function desenharMorcego() {

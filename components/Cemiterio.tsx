@@ -100,7 +100,9 @@ function legenda(estado: Estado) {
   if (estado === "procurando") {
     return "Aponte para o brasão deitado no centro da sobremesa.";
   }
-  if (estado === "visto") return "O cemitério está em volta do brasão. Afaste um pouco para ver as quatro lápides.";
+  if (estado === "visto") {
+    return "Afaste para ver as quatro. Chegue perto de uma lápide para a frase surgir em cima dela.";
+  }
   return "A câmera não abriu. A lista de túmulos continua na página anterior.";
 }
 
