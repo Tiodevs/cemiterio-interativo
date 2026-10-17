@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { ListaTumulos } from "@/components/ListaTumulos";
 
 type RitualProps = {
@@ -18,18 +17,15 @@ export function Ritual({ acao }: RitualProps) {
           Cemitério da travessa
         </h1>
         <p className="mt-5 max-w-md font-sans text-lg leading-7 text-bone/75">
-          O brasão fica deitado no centro do doce. A câmera faz as lápides
-          nascerem em volta. Chegue perto de uma para a frase aparecer em
-          cima da pedra.
+          Aponte o círculo para o centro da sobremesa e toque em Pronto. As
+          lápides ficam fincadas aí. Chegue perto de uma para a frase aparecer
+          em cima da pedra.
         </p>
       </header>
       {acao ? <div className="relative mt-8">{acao}</div> : null}
       <ListaTumulos />
       <p className="relative mt-8 font-sans text-sm text-bone/60">
-        Sem o papel impresso, a lista acima já conta as frases.{" "}
-        <Link href="/imprimir" className="text-moss underline decoration-moss/40 underline-offset-4">
-          Imprimir o brasão de 10 cm
-        </Link>
+        Sem a câmera, a lista acima já conta as frases.
       </p>
     </main>
   );

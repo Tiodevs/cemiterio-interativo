@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Cemiterio } from "@/components/Cemiterio";
 import { Ritual } from "@/components/Ritual";
-import { loadMind, loadThree } from "@/lib/mindar";
+import { loadThree } from "@/lib/mindar";
+import { pedirPermissaoDeOrientacao } from "@/lib/orientacao";
 
 export function Experiencia() {
   const [naCamera, setNaCamera] = useState(false);
@@ -12,7 +13,6 @@ export function Experiencia() {
 
   useEffect(() => {
     void loadThree();
-    void loadMind();
   }, []);
 
   if (naCamera) {
@@ -62,6 +62,7 @@ async function entrar(
       video: { facingMode: { ideal: "environment" } },
     });
     stream.getTracks().forEach((trilha) => trilha.stop());
+    await pedirPermissaoDeOrientacao();
     avisar(null);
     abrir(true);
   } catch {
