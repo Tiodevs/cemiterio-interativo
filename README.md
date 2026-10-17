@@ -1,6 +1,6 @@
 # Cemitério interativo
 
-WebAR de Halloween. A pessoa aponta um círculo para o centro da sobremesa, toca em Pronto, e quatro lápides ficam fincadas nesse ponto. Perto de uma pedra, a frase de efeito surge em cima dela.
+WebAR de Halloween. A pessoa deita um círculo no centro da sobremesa, toca em **Posicionar o cemitério**, e quatro lápides ficam fincadas na mesa. Dá para andar em volta e chegar perto: ao lado de uma pedra, a frase de efeito surge em cima dela.
 
 Esta versão usa quatro pessoas genéricas. Os nomes e as frases ficam em `lib/amigos.ts`.
 
@@ -18,9 +18,16 @@ npm run dev
 
 1. O QR da mesa só abre o endereço HTTPS da Vercel.
 2. Toque em **Entrar no cemitério** e aceite a câmera e o movimento do celular.
-3. Incline o aparelho até o círculo deitar no centro da sobremesa e toque em **Pronto**.
-4. Mexa o celular para olhar as lápides. Chegue perto de uma para a frase aparecer.
+3. Comece com o celular a uns 35 cm da sobremesa, apontado para ela.
+4. Mexa devagar até o círculo deitar no centro e toque em **Posicionar o cemitério**.
+5. Ande em volta e aproxime o celular. **Reposicionar** devolve o círculo.
 
-O círculo não depende mais do brasão impresso. Se a pessoa andar para o outro lado da mesa, o giro do celular não acompanha o passo: o encaixe vale para quem está olhando de onde tocou em Pronto.
+A mousse lisa tem pouca textura para a câmera. Se aparecer o aviso, enquadre também a borda da travessa e a mesa.
 
 A câmera do celular exige HTTPS. No computador, `localhost` basta.
+
+## Rastreio
+
+O rastreio de mundo vem do motor do 8th Wall, vendorizado em `public/xr`. Esses arquivos não podem ser alterados, e o aviso de licença no rodapé precisa ficar visível. O Three fica em `public/vendor`. Os dois carregam sem npm, por isso o lint ignora essas pastas.
+
+Funciona no Safari do iPhone (iOS 16.4 ou mais novo) e no Chrome do Android.
