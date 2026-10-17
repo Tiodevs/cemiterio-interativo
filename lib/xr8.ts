@@ -17,6 +17,7 @@ export type PipelineModule = {
   onUpdate?: () => void;
   onException?: (error: unknown) => void;
   onCameraStatusChange?: (args: { status: string }) => void;
+  onCanvasSizeChange?: () => void;
   listeners?: {
     event: string;
     process: (args: { detail: TrackingStatus }) => void;

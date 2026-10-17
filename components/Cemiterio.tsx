@@ -31,16 +31,26 @@ export function Cemiterio({ onSair }: CemiterioProps) {
     let parado = false;
     let xr8: XR8 | null = null;
     const canvas = document.createElement("canvas");
-    canvas.className = "absolute inset-0 h-full w-full";
+    canvas.className = "absolute inset-0 block h-full w-full";
     palco.append(canvas);
 
-    const ajustarCanvas = () => {
+    // O motor mede o canvas em pixels do buffer e grava isso no estilo.
+    // No celular isso deixa o desenho maior que a tela e o recorte mostra
+    // só o canto, com o círculo preso na lateral. O estilo volta a caber
+    // no palco; o buffer continua nítido.
+    const encaixarCanvas = () => {
       const escala = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.round(palco.clientWidth * escala);
-      canvas.height = Math.round(palco.clientHeight * escala);
+      const largura = Math.max(1, Math.round(palco.clientWidth * escala));
+      const altura = Math.max(1, Math.round(palco.clientHeight * escala));
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
+      if (canvas.width !== largura || canvas.height !== altura) {
+        canvas.width = largura;
+        canvas.height = altura;
+      }
     };
-    ajustarCanvas();
-    window.addEventListener("resize", ajustarCanvas);
+    encaixarCanvas();
+    window.addEventListener("resize", encaixarCanvas);
 
     const ligar = async () => {
       try {
@@ -124,15 +134,24 @@ export function Cemiterio({ onSair }: CemiterioProps) {
                 origin: camera.position,
                 facing: camera.quaternion,
               });
+              encaixarCanvas();
               if (!parado) setFase("mirando");
             },
+            onCanvasSizeChange: () => {
+              encaixarCanvas();
+            },
             onUpdate: () => {
+              if (canvas.style.width !== "100%" || canvas.style.height !== "100%") {
+                canvas.style.width = "100%";
+                canvas.style.height = "100%";
+              }
               const { camera } = motor.Threejs.xrScene();
               const delta = relogio.getDelta();
               if (colocado) {
                 cemiterio.update(camera, delta);
                 return;
               }
+              camera.updateMatrixWorld();
               raio.setFromCamera(centroDaTela, camera);
               const acerto = raio.ray.intersectPlane(chao, ponto);
               const valido =
@@ -171,7 +190,7 @@ export function Cemiterio({ onSair }: CemiterioProps) {
 
     return () => {
       parado = true;
-      window.removeEventListener("resize", ajustarCanvas);
+      window.removeEventListener("resize", encaixarCanvas);
       posicionarRef.current = null;
       reposicionarRef.current = null;
       if (xr8) {
