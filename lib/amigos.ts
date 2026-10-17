@@ -12,11 +12,11 @@ const SIMBOLOS: Simbolo[] = ["lua", "morcego", "aranha", "vela"];
 const PESSOAS: { nome: string; frase: string }[] = [
   {
     nome: "Jonas",
-    frase: "Morreu enviando uma figurinha do Leonardo Dicaprio",
+    frase: "Morreu enviando uma figurinha do Leonardo DiCaprio",
   },
   {
     nome: "Jaque",
-    frase: "Morreu de triste com o fim da carreira da Ariana Grande",
+    frase: "Morreu de tristeza com o fim da carreira da Ariana Grande",
   },
   {
     nome: "Leo",
@@ -32,10 +32,10 @@ const PESSOAS: { nome: string; frase: string }[] = [
   },
   {
     nome: "Tone",
-    frase: "Morreu depois de beber 30 Pepis",
+    frase: "Morreu depois de beber 30 Pepsi",
   },
   {
-    nome: "Fransisco",
+    nome: "Francisco",
     frase: "Morreu ao trabalhar em 10 empregos em uma semana",
   },
   {
