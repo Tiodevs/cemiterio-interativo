@@ -33,6 +33,3 @@ export const AMIGOS: Amigo[] = [
     simbolo: "vela",
   },
 ];
-
-/** Largura impressa do brasão. No MindAR, essa largura vale 1 unidade. */
-export const LARGURA_MARCADOR_CM = 10;

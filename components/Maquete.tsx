@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { AMIGOS } from "@/lib/amigos";
 import { criarCemiterio } from "@/lib/cena";
-import { loadThree } from "@/lib/mindar";
+import { loadThree } from "@/lib/three";
 
 const LONGE = 5;
 const PERTO = 1.6;

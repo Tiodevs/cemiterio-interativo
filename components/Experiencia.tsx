@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Cemiterio } from "@/components/Cemiterio";
 import { Ritual } from "@/components/Ritual";
-import { loadThree } from "@/lib/mindar";
+import { loadThree } from "@/lib/three";
 import { pedirMovimento } from "@/lib/permissoes";
 import { loadXr8 } from "@/lib/xr8";
 

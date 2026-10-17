@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AMIGOS } from "@/lib/amigos";
 import { criarCemiterio } from "@/lib/cena";
-import { loadThree } from "@/lib/mindar";
+import { loadThree } from "@/lib/three";
 import { loadXr8, type TrackingStatus, type XR8 } from "@/lib/xr8";
 
 type CemiterioProps = {

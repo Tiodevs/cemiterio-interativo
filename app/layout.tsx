@@ -39,7 +39,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             __html: JSON.stringify({
               imports: {
                 three: "/vendor/three.module.min.js",
-                "three/addons/": "/vendor/addons/",
               },
             }),
           }}
