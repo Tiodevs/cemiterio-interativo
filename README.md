@@ -1,8 +1,8 @@
 # Cemitério interativo
 
-WebAR de Halloween. A pessoa deita um círculo no centro da sobremesa, toca em **Posicionar o cemitério**, e quatro lápides ficam fincadas na mesa. Dá para andar em volta e chegar perto: ao lado de uma pedra, a frase de efeito surge em cima dela.
+WebAR de Halloween. A pessoa deita um círculo no centro da sobremesa, toca em **Posicionar o cemitério**, e as lápides ficam fincadas na mesa. Dá para andar em volta e chegar perto: ao lado de uma pedra, a frase de efeito surge em cima dela.
 
-Esta versão usa quatro pessoas genéricas. Os nomes e as frases ficam em `lib/amigos.ts`.
+Os nomes e as frases ficam em `lib/amigos.ts`.
 
 ## Rodar
 
