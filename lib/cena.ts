@@ -13,8 +13,8 @@ export type CenaCemiterio = {
 /** 1 unidade = 10 cm. O chão da cena (y = 0) é a superfície da sobremesa. */
 const RAIO_X = 1;
 const RAIO_Z = 0.7;
-const LARGURA_PEDRA = 1;
-const ALTURA_PEDRA = 1.44;
+const LARGURA_PEDRA = 0.85;
+const ALTURA_PEDRA = 1.22;
 
 type Lapide = {
   pedra: Mesh;
@@ -83,8 +83,8 @@ export function criarCemiterio(
       depthTest: false,
       side: THREE.DoubleSide,
     });
-    const letreiro = new THREE.Mesh(new THREE.PlaneGeometry(1.12, 0.42), material);
-    letreiro.position.set(pedra.position.x, ALTURA_PEDRA + 0.32, pedra.position.z);
+    const letreiro = new THREE.Mesh(new THREE.PlaneGeometry(0.95, 0.36), material);
+    letreiro.position.set(pedra.position.x, ALTURA_PEDRA + 0.27, pedra.position.z);
     letreiro.renderOrder = 10;
     letreiro.visible = false;
 
@@ -103,7 +103,7 @@ export function criarCemiterio(
         side: THREE.DoubleSide,
       }),
     );
-    morcego.position.set(Math.cos(angulo) * 0.55, 1.85 + index * 0.12, Math.sin(angulo) * 0.4);
+    morcego.position.set(Math.cos(angulo) * 0.55, 1.64 + index * 0.12, Math.sin(angulo) * 0.4);
     morcegos.add(morcego);
   }
   group.add(morcegos);
@@ -187,7 +187,7 @@ function aproximacaoDaPedra(
   group.localToWorld(baixo).project(camera);
   group.localToWorld(cima).project(camera);
   const altura = Math.hypot(baixo.x - cima.x, baixo.y - cima.y);
-  return THREE.MathUtils.clamp((altura - 0.58) / 0.16, 0, 1);
+  return THREE.MathUtils.clamp((altura - 0.48) / 0.16, 0, 1);
 }
 
 function texturaDeCanvas(THREE: ThreeModule, canvas: HTMLCanvasElement) {
