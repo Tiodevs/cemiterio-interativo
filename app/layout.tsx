@@ -38,14 +38,24 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               imports: {
-                three: "/vendor/three.module.js",
+                three: "/vendor/three.module.min.js",
                 "three/addons/": "/vendor/addons/",
               },
             }),
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <footer className="mx-auto w-full max-w-3xl px-5 pb-6 font-sans text-[0.68rem] leading-4 text-bone/40 sm:px-8">
+          This product includes the XR Engine software developed by Niantic
+          Spatial, Inc. Copyright © 2026 Niantic Spatial, Inc. All rights
+          reserved. License:{" "}
+          <a href="https://github.com/8thwall/engine/blob/main/LICENSE">
+            github.com/8thwall/engine/blob/main/LICENSE
+          </a>
+        </footer>
+      </body>
     </html>
   );
 }
