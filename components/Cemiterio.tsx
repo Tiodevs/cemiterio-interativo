@@ -206,9 +206,7 @@ export function Cemiterio({ onSair }: CemiterioProps) {
     <div className="fixed inset-0 bg-ink text-bone">
       <div ref={palcoRef} className="absolute inset-0 overflow-hidden" />
       <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center px-4 pt-6">
-        <p className="max-w-sm rounded-2xl bg-ink/80 px-4 py-2 text-center font-sans text-sm leading-5">
-          {legenda(fase, noChao, rastreio)}
-        </p>
+        <p className="aviso">{legenda(fase, noChao, rastreio)}</p>
       </div>
       <div className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 px-5 pb-6">
         {fase === "mirando" ? (
@@ -219,26 +217,22 @@ export function Cemiterio({ onSair }: CemiterioProps) {
               tocarMusica();
               posicionarRef.current?.();
             }}
-            className="h-14 w-full max-w-sm rounded-full bg-ember font-sans text-base text-bone disabled:opacity-40"
+            className="btn-cyan w-full max-w-sm"
           >
-            Posicionar o cemitério
+            Posicionar
           </button>
         ) : null}
         {fase === "colocado" ? (
           <button
             type="button"
             onClick={() => reposicionarRef.current?.()}
-            className="h-12 rounded-full border border-bone/30 bg-ink/80 px-5 font-sans text-sm"
+            className="btn-line"
           >
             Reposicionar
           </button>
         ) : null}
-        <button
-          type="button"
-          onClick={onSair}
-          className="h-12 rounded-full border border-bone/30 bg-ink/80 px-5 font-sans text-sm"
-        >
-          Voltar à lista
+        <button type="button" onClick={onSair} className="btn-line">
+          Voltar
         </button>
       </div>
     </div>
@@ -248,7 +242,7 @@ export function Cemiterio({ onSair }: CemiterioProps) {
 function legenda(fase: Fase, noChao: boolean, rastreio: TrackingStatus | null) {
   if (fase === "carregando") return "Preparando a câmera…";
   if (fase === "erro") {
-    return "A câmera ou o movimento do celular não abriram. A lista de túmulos continua na página anterior.";
+    return "A câmera ou o movimento do celular não abriram.";
   }
   if (rastreio?.status === "LIMITED") {
     if (rastreio.reason === "TOO_MUCH_MOTION") return "Mexa o celular mais devagar.";

@@ -11,7 +11,7 @@ npm install
 npm run dev
 ```
 
-- `/` abre a entrada, a lista de túmulos e o botão da câmera.
+- `/` abre a entrada e o botão da câmera. Os nomes não aparecem nessa tela.
 - `/maquete` mostra o cemitério sem câmera. O controle **Aproximar** revela a frase.
 
 ## Na festa

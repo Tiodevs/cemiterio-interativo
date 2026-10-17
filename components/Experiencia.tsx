@@ -24,7 +24,7 @@ export function Experiencia() {
   return (
     <Ritual
       acao={
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
           <button
             type="button"
             onClick={() => {
@@ -33,20 +33,14 @@ export function Experiencia() {
               void loadXr8().catch(() => undefined);
               void entrar(movimento, setNaCamera, setErro);
             }}
-            className="h-14 rounded-full bg-ember px-6 font-sans text-base text-bone"
+            className="btn-cyan w-full sm:w-auto"
           >
-            Entrar no cemitério
+            Entrar e escanear
           </button>
-          <Link
-            href="/maquete"
-            onClick={() => tocarMusica()}
-            className="text-center font-sans text-sm text-moss underline decoration-moss/40 underline-offset-4"
-          >
-            Ver a maquete sem câmera
+          <Link href="/maquete" onClick={() => tocarMusica()} className="btn-line w-full sm:w-auto">
+            Ver sem câmera
           </Link>
-          {erro ? (
-            <p className="font-sans text-sm leading-5 text-bone/80">{erro}</p>
-          ) : null}
+          {erro ? <p className="aviso w-full sm:w-auto">{erro}</p> : null}
         </div>
       }
     />
@@ -59,7 +53,7 @@ async function entrar(
   avisar: (mensagem: string | null) => void,
 ) {
   if (!navigator.mediaDevices?.getUserMedia) {
-    avisar("Este navegador não libera a câmera. Use a lista ou a maquete.");
+    avisar("Este navegador não libera a câmera.");
     return;
   }
 
@@ -80,6 +74,6 @@ async function entrar(
     avisar(null);
     abrir(true);
   } catch {
-    avisar("A câmera ficou bloqueada. As frases continuam na lista abaixo.");
+    avisar("A câmera ficou bloqueada.");
   }
 }

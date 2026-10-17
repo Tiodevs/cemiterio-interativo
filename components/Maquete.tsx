@@ -96,10 +96,10 @@ export function Maquete() {
     <div className="fixed inset-0 bg-ink text-bone">
       <div ref={palcoRef} className="absolute inset-0" />
       <div className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 px-4 pb-6">
-        <p className="max-w-sm rounded-full bg-ink/80 px-4 py-2 text-center font-sans text-sm">
+        <p className="aviso">
           Arraste para chegar perto de uma lápide. A frase nasce em cima dela.
         </p>
-        <label className="flex w-full max-w-xs items-center gap-3 rounded-full bg-ink/80 px-4 py-2 font-sans text-xs tracking-wide text-bone/80 uppercase">
+        <label className="aviso flex w-full max-w-xs items-center gap-3">
           Aproximar
           <input
             type="range"
@@ -108,17 +108,14 @@ export function Maquete() {
             step={0.01}
             defaultValue={0}
             aria-label="Aproximar a câmera"
-            className="w-full accent-ember"
+            className="w-full accent-cyan"
             onChange={(event) => {
               const perto = Number(event.target.value);
               distanciaRef.current = LONGE - perto * (LONGE - PERTO);
             }}
           />
         </label>
-        <Link
-          href="/"
-          className="flex h-12 items-center rounded-full border border-bone/30 bg-ink/80 px-5 font-sans text-sm"
-        >
+        <Link href="/" className="btn-line">
           Voltar
         </Link>
       </div>
