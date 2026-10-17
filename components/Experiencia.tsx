@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Cemiterio } from "@/components/Cemiterio";
 import { Ritual } from "@/components/Ritual";
+import { tocarMusica } from "@/lib/musica";
 import { loadThree } from "@/lib/three";
 import { pedirMovimento } from "@/lib/permissoes";
 import { loadXr8 } from "@/lib/xr8";
@@ -27,6 +28,7 @@ export function Experiencia() {
           <button
             type="button"
             onClick={() => {
+              tocarMusica();
               const movimento = pedirMovimento();
               void loadXr8().catch(() => undefined);
               void entrar(movimento, setNaCamera, setErro);
@@ -37,6 +39,7 @@ export function Experiencia() {
           </button>
           <Link
             href="/maquete"
+            onClick={() => tocarMusica()}
             className="text-center font-sans text-sm text-moss underline decoration-moss/40 underline-offset-4"
           >
             Ver a maquete sem câmera
