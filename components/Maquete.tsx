@@ -6,9 +6,12 @@ import { AMIGOS } from "@/lib/amigos";
 import { criarCemiterio } from "@/lib/cena";
 import { loadThree } from "@/lib/mindar";
 
+const LONGE = 5;
+const PERTO = 1.6;
+
 export function Maquete() {
   const palcoRef = useRef<HTMLDivElement>(null);
-  const distanciaRef = useRef(2.5);
+  const distanciaRef = useRef(LONGE);
 
   useEffect(() => {
     const palco = palcoRef.current;
@@ -19,45 +22,43 @@ export function Maquete() {
     let limpar = () => {};
 
     const montar = async () => {
-      try {
       const THREE = await loadThree();
-      if (parado || !palco) return;
+      if (parado) return;
 
-      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setPixelRatio(window.devicePixelRatio);
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       palco.appendChild(renderer.domElement);
 
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color("#e7b4c4");
-      const camera = new THREE.PerspectiveCamera(38, 1, 0.01, 20);
+      scene.background = new THREE.Color("#2a201c");
+      const camera = new THREE.PerspectiveCamera(60, 1, 0.05, 60);
 
-      const brasao = new THREE.TextureLoader().load("/markers/centro.png");
-      brasao.colorSpace = THREE.SRGBColorSpace;
-      scene.add(
-        new THREE.Mesh(
-          new THREE.PlaneGeometry(1, 1),
-          new THREE.MeshBasicMaterial({ map: brasao }),
-        ),
+      const travessa = new THREE.Mesh(
+        new THREE.CircleGeometry(1, 64),
+        new THREE.MeshBasicMaterial({ color: "#e7a3b6" }),
       );
+      travessa.rotation.x = -Math.PI / 2;
+      travessa.scale.set(2, 1.25, 1);
+      scene.add(travessa);
 
       const cemiterio = criarCemiterio(THREE, AMIGOS);
       scene.add(cemiterio.group);
       cemiterio.surgir();
 
-      const pedida = Number(
-        new URLSearchParams(window.location.search).get("distancia"),
-      );
+      const pedida = Number(new URLSearchParams(window.location.search).get("distancia"));
       if (Number.isFinite(pedida) && pedida > 0) {
         distanciaRef.current = pedida;
       }
 
       const relogio = new THREE.Clock();
+      const alvo = new THREE.Vector3();
+      const direcao = new THREE.Vector3(0, 0.62, 0.78).normalize();
       const ajustar = () => {
-        const largura = palco.clientWidth;
-        const altura = palco.clientHeight;
-        renderer.setSize(largura, altura, false);
-        camera.aspect = largura / Math.max(altura, 1);
+        renderer.setSize(palco.clientWidth, palco.clientHeight, false);
+        renderer.domElement.style.width = "100%";
+        renderer.domElement.style.height = "100%";
+        camera.aspect = palco.clientWidth / Math.max(palco.clientHeight, 1);
         camera.updateProjectionMatrix();
       };
       ajustar();
@@ -65,9 +66,10 @@ export function Maquete() {
 
       const desenhar = () => {
         const distancia = distanciaRef.current;
-        const perto = Math.min(1, Math.max(0, (3.3 - distancia) / 2.15));
-        camera.position.set(0, -0.85 - perto * 0.7, 2.55 - perto * 1.45);
-        camera.lookAt(0, -perto * 0.68, 0.05);
+        const perto = THREE.MathUtils.clamp((LONGE - distancia) / (LONGE - PERTO), 0, 1);
+        alvo.set(0, 0.2 + perto * 0.16, perto * 0.7);
+        camera.position.copy(alvo).addScaledVector(direcao, distancia);
+        camera.lookAt(alvo);
         cemiterio.update(camera, relogio.getDelta());
         renderer.render(scene, camera);
         quadro = window.requestAnimationFrame(desenhar);
@@ -80,9 +82,6 @@ export function Maquete() {
         renderer.dispose();
         renderer.domElement.remove();
       };
-      } catch (error) {
-        console.error(error);
-      }
     };
 
     void montar();
@@ -104,14 +103,15 @@ export function Maquete() {
           Aproximar
           <input
             type="range"
-            min={1.15}
-            max={3.3}
+            min={0}
+            max={1}
             step={0.01}
-            defaultValue={2.5}
+            defaultValue={0}
             aria-label="Aproximar a câmera"
             className="w-full accent-ember"
             onChange={(event) => {
-              distanciaRef.current = Number(event.target.value);
+              const perto = Number(event.target.value);
+              distanciaRef.current = LONGE - perto * (LONGE - PERTO);
             }}
           />
         </label>

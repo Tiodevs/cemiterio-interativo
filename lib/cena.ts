@@ -1,4 +1,4 @@
-import type { Camera, Group, Mesh, MeshBasicMaterial, Object3D } from "three";
+import type { Camera, Group, Mesh, MeshBasicMaterial } from "three";
 import type * as ThreeTypes from "three";
 import type { Amigo, Simbolo } from "@/lib/amigos";
 
@@ -10,8 +10,11 @@ export type CenaCemiterio = {
   update: (camera: Camera, delta: number) => void;
 };
 
-const RAIO_X = 0.98;
-const RAIO_Y = 0.7;
+/** 1 unidade = 10 cm. O chão da cena (y = 0) é a superfície da sobremesa. */
+const RAIO_X = 1;
+const RAIO_Z = 0.7;
+const LARGURA_PEDRA = 0.5;
+const ALTURA_PEDRA = 0.72;
 
 type Lapide = {
   pedra: Mesh;
@@ -28,10 +31,41 @@ export function criarCemiterio(
   const morcegos = new THREE.Group();
   const texturaMorcego = texturaDeCanvas(THREE, desenharMorcego());
 
+  const terra = new THREE.Mesh(
+    new THREE.CircleGeometry(1.3, 64),
+    new THREE.MeshBasicMaterial({
+      color: 0x1a120e,
+      transparent: true,
+      opacity: 0.28,
+      depthWrite: false,
+    }),
+  );
+  terra.rotation.x = -Math.PI / 2;
+  terra.scale.set(RAIO_X, RAIO_Z, 1);
+  terra.position.y = 0.002;
+  group.add(terra);
+
+  const anel = new THREE.Mesh(
+    new THREE.RingGeometry(0.94, 1, 64),
+    new THREE.MeshBasicMaterial({
+      color: 0x1a120e,
+      transparent: true,
+      opacity: 0.45,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    }),
+  );
+  anel.rotation.x = -Math.PI / 2;
+  anel.scale.set(RAIO_X, RAIO_Z, 1);
+  anel.position.y = 0.004;
+  group.add(anel);
+
   amigos.forEach((amigo, index) => {
-    const angulo = (index / amigos.length) * Math.PI * 2 - Math.PI / 2;
+    const angulo = (index / amigos.length) * Math.PI * 2 + Math.PI / 2;
+    const geometria = new THREE.PlaneGeometry(LARGURA_PEDRA, ALTURA_PEDRA);
+    geometria.translate(0, ALTURA_PEDRA / 2, 0);
     const pedra = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.36, 0.52),
+      geometria,
       new THREE.MeshBasicMaterial({
         map: texturaDeCanvas(THREE, desenharLapide(amigo)),
         transparent: true,
@@ -39,41 +73,29 @@ export function criarCemiterio(
         side: THREE.DoubleSide,
       }),
     );
-    pedra.position.set(
-      Math.cos(angulo) * RAIO_X,
-      Math.sin(angulo) * RAIO_Y,
-      0.02,
-    );
+    pedra.position.set(Math.cos(angulo) * RAIO_X, 0, Math.sin(angulo) * RAIO_Z);
+
     const material = new THREE.MeshBasicMaterial({
       map: texturaDeCanvas(THREE, desenharFrase(amigo.frase)),
       transparent: true,
       opacity: 0,
       depthWrite: false,
+      depthTest: false,
       side: THREE.DoubleSide,
     });
-    const letreiro = new THREE.Mesh(new THREE.PlaneGeometry(0.56, 0.24), material);
+    const letreiro = new THREE.Mesh(new THREE.PlaneGeometry(0.56, 0.21), material);
+    letreiro.position.set(pedra.position.x, ALTURA_PEDRA + 0.16, pedra.position.z);
+    letreiro.renderOrder = 10;
     letreiro.visible = false;
+
     group.add(pedra, letreiro);
     lapides.push({ pedra, letreiro, material });
   });
 
-  const anel = new THREE.Mesh(
-    new THREE.RingGeometry(0.78, 0.86, 64),
-    new THREE.MeshBasicMaterial({
-      color: 0x1a120e,
-      transparent: true,
-      opacity: 0.35,
-      side: THREE.DoubleSide,
-    }),
-  );
-  anel.scale.set(RAIO_X, RAIO_Y, 1);
-  anel.position.z = 0.001;
-  group.add(anel);
-
   for (let index = 0; index < 3; index += 1) {
     const angulo = (index / 3) * Math.PI * 2;
     const morcego = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.18, 0.1),
+      new THREE.PlaneGeometry(0.26, 0.13),
       new THREE.MeshBasicMaterial({
         map: texturaMorcego,
         transparent: true,
@@ -81,7 +103,7 @@ export function criarCemiterio(
         side: THREE.DoubleSide,
       }),
     );
-    morcego.position.set(Math.cos(angulo) * 0.5, Math.sin(angulo) * 0.34, 0.62);
+    morcego.position.set(Math.cos(angulo) * 0.55, 1.25 + index * 0.12, Math.sin(angulo) * 0.4);
     morcegos.add(morcego);
   }
   group.add(morcegos);
@@ -89,6 +111,10 @@ export function criarCemiterio(
   let subida = 0;
   let surgindo = false;
   group.scale.setScalar(0.001);
+
+  const cameraNoMundo = new THREE.Vector3();
+  const cameraNoGrupo = new THREE.Vector3();
+  const meio = new THREE.Vector3();
 
   return {
     group,
@@ -98,73 +124,70 @@ export function criarCemiterio(
     },
     update(camera, delta) {
       if (surgindo) {
-        subida = Math.min(1, subida + delta * 1.35);
+        subida = Math.min(1, subida + delta * 1.2);
       }
       const curva = 1 - (1 - subida) ** 3;
       group.scale.setScalar(Math.max(0.001, curva));
-      group.parent?.updateMatrixWorld(true);
-      morcegos.rotation.z += delta * 0.65;
+      group.updateWorldMatrix(true, true);
+      morcegos.rotation.y += delta * 0.7;
 
-      const cameraNoMundo = new THREE.Vector3();
       camera.getWorldPosition(cameraNoMundo);
-      const posicao = new THREE.Vector3();
-      const projetado = new THREE.Vector3();
+      cameraNoGrupo.copy(cameraNoMundo);
+      group.worldToLocal(cameraNoGrupo);
+
       let escolhida: Lapide | null = null;
       let distanciaAoCentro = Infinity;
 
       for (const lapide of lapides) {
-        lapide.pedra.lookAt(cameraNoMundo);
-        lapide.pedra.getWorldPosition(posicao);
-        projetado.copy(posicao).project(camera);
-        const naTela =
-          projetado.z < 1 &&
-          Math.abs(projetado.x) < 1.05 &&
-          Math.abs(projetado.y) < 1.05;
-        const aoCentro = Math.hypot(projetado.x, projetado.y);
+        const { pedra } = lapide;
+        pedra.rotation.y = Math.atan2(
+          cameraNoGrupo.x - pedra.position.x,
+          cameraNoGrupo.z - pedra.position.z,
+        );
+        meio.set(pedra.position.x, ALTURA_PEDRA / 2, pedra.position.z);
+        group.localToWorld(meio);
+        meio.project(camera);
+        const naTela = meio.z < 1 && Math.abs(meio.x) < 1 && Math.abs(meio.y) < 1;
+        const aoCentro = Math.hypot(meio.x, meio.y);
         if (naTela && aoCentro < distanciaAoCentro) {
           distanciaAoCentro = aoCentro;
           escolhida = lapide;
         }
       }
 
-      const zoom = escolhida
-        ? aproximacaoDaPedra(THREE, escolhida.pedra, camera)
-        : 0;
-      const mira = THREE.MathUtils.clamp(1 - distanciaAoCentro / 0.5, 0, 1);
+      const zoom = escolhida ? aproximacaoDaPedra(THREE, group, escolhida.pedra, camera) : 0;
+      const mira = THREE.MathUtils.clamp(1 - distanciaAoCentro / 0.65, 0, 1);
+      const passo = Math.min(1, delta * 8);
 
       for (const lapide of lapides) {
-        const alvo = lapide === escolhida ? zoom * mira : 0;
-        const passo = Math.min(1, delta * 8);
+        const alvo = lapide === escolhida ? Math.min(1, zoom * mira * 1.4) : 0;
         lapide.material.opacity += (alvo - lapide.material.opacity) * passo;
         lapide.letreiro.visible = lapide.material.opacity > 0.04;
-        const topo = new THREE.Vector3(0, 0.36, 0);
-        lapide.pedra.localToWorld(topo);
-        group.worldToLocal(topo);
-        lapide.letreiro.position.copy(topo);
+        const escala = 0.75 + lapide.material.opacity * 0.25;
+        lapide.letreiro.scale.setScalar(escala);
         lapide.letreiro.lookAt(cameraNoMundo);
       }
 
       for (const morcego of morcegos.children) {
-        (morcego as Object3D).lookAt(cameraNoMundo);
+        morcego.lookAt(cameraNoMundo);
       }
     },
   };
 }
 
+/** Altura da pedra na tela: 0 de longe, 1 quando o celular está a uns 20 cm. */
 function aproximacaoDaPedra(
   THREE: ThreeModule,
+  group: Group,
   pedra: Mesh,
   camera: Camera,
 ) {
-  pedra.updateMatrixWorld(true);
-  const baixo = new THREE.Vector3(0, -0.26, 0);
-  const cima = new THREE.Vector3(0, 0.26, 0);
-  pedra.localToWorld(baixo);
-  pedra.localToWorld(cima);
-  baixo.project(camera);
-  cima.project(camera);
+  const baixo = new THREE.Vector3(pedra.position.x, 0, pedra.position.z);
+  const cima = new THREE.Vector3(pedra.position.x, ALTURA_PEDRA, pedra.position.z);
+  group.localToWorld(baixo).project(camera);
+  group.localToWorld(cima).project(camera);
   const altura = Math.hypot(baixo.x - cima.x, baixo.y - cima.y);
-  return THREE.MathUtils.clamp((altura - 0.2) / 0.16, 0, 1);
+  return THREE.MathUtils.clamp((altura - 0.42) / 0.2, 0, 1);
 }
 
 function texturaDeCanvas(THREE: ThreeModule, canvas: HTMLCanvasElement) {
@@ -209,7 +232,7 @@ function tracarLapide(ctx: CanvasRenderingContext2D) {
   const largura = 416;
   const arco = largura / 2;
   const topo = 70;
-  const base = 700;
+  const base = 760;
   ctx.beginPath();
   ctx.moveTo(x, base);
   ctx.lineTo(x, topo + arco);
