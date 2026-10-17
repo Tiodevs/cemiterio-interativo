@@ -45,7 +45,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="min-h-full flex flex-col">
         {children}
-        <footer className="shell flex flex-col gap-6 pb-8 font-mono text-[0.68rem] leading-4 text-bone-dim">
+        <footer className="shell flex flex-col gap-4 pb-8 font-mono text-[0.68rem] leading-4 text-bone-dim">
+          <p className="tracking-[0.14em] text-bone uppercase">
+            Saiba mais em{" "}
+            <a
+              href="https://mefelipe.com.br"
+              className="text-cyan transition-colors hover:text-bone"
+            >
+              mefelipe.com.br
+            </a>
+          </p>
           <p>
             This product includes the XR Engine software developed by Niantic
             Spatial, Inc. Copyright © 2026 Niantic Spatial, Inc. All rights
@@ -54,12 +63,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               github.com/8thwall/engine/blob/main/LICENSE
             </a>
           </p>
-          <a
-            href="https://mefelipe.com.br"
-            className="w-fit tracking-[0.14em] text-bone uppercase transition-colors hover:text-cyan"
-          >
-            mefelipe.com.br
-          </a>
         </footer>
       </body>
     </html>
