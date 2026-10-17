@@ -12,6 +12,7 @@ npm run dev
 ```
 
 - `/` abre a entrada e o botão da câmera. Os nomes não aparecem nessa tela.
+- `/sobre` explica o projeto, as tecnologias e os desafios.
 
 ## Na festa
 

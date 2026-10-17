@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Cemiterio } from "@/components/Cemiterio";
 import { Ritual } from "@/components/Ritual";
@@ -36,6 +37,9 @@ export function Experiencia() {
           >
             Entrar e escanear
           </button>
+          <Link href="/sobre" className="btn-line w-full sm:w-auto">
+            Sobre o projeto
+          </Link>
           {erro ? <p className="aviso">{erro}</p> : null}
         </div>
       }
