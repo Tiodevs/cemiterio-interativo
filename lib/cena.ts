@@ -4,10 +4,20 @@ import type { Amigo, Simbolo } from "@/lib/amigos";
 
 type ThreeModule = typeof ThreeTypes;
 
+export type FocoLapide = {
+  id: string;
+  nome: string;
+};
+
 export type CenaCemiterio = {
   group: Group;
   surgir: () => void;
   update: (camera: Camera, delta: number) => void;
+  mostrarFrase: (id: string | null) => void;
+};
+
+type OpcoesCena = {
+  aoMudarFoco?: (foco: FocoLapide | null) => void;
 };
 
 /** 1 unidade = 10 cm. O chão da cena (y = 0) é a superfície da sobremesa. */
@@ -17,6 +27,8 @@ const LARGURA_PEDRA = 0.5;
 const ALTURA_PEDRA = 0.72;
 
 type Lapide = {
+  id: string;
+  nome: string;
   pedra: Mesh;
   letreiro: Mesh;
   material: MeshBasicMaterial;
@@ -25,6 +37,7 @@ type Lapide = {
 export function criarCemiterio(
   THREE: ThreeModule,
   amigos: Amigo[],
+  opcoes: OpcoesCena = {},
 ): CenaCemiterio {
   const group = new THREE.Group();
   const lapides: Lapide[] = [];
@@ -89,7 +102,7 @@ export function criarCemiterio(
     letreiro.visible = false;
 
     group.add(pedra, letreiro);
-    lapides.push({ pedra, letreiro, material });
+    lapides.push({ id: amigo.id, nome: amigo.nome, pedra, letreiro, material });
   });
 
   for (let index = 0; index < 3; index += 1) {
@@ -110,6 +123,8 @@ export function criarCemiterio(
 
   let subida = 0;
   let surgindo = false;
+  let fraseId: string | null = null;
+  let focoId: string | null = null;
   group.scale.setScalar(0.001);
 
   const cameraNoMundo = new THREE.Vector3();
@@ -121,6 +136,9 @@ export function criarCemiterio(
     surgir() {
       surgindo = true;
       subida = 0;
+    },
+    mostrarFrase(id) {
+      fraseId = id;
     },
     update(camera, delta) {
       if (surgindo) {
@@ -149,18 +167,22 @@ export function criarCemiterio(
         meio.project(camera);
         const naTela = meio.z < 1 && Math.abs(meio.x) < 1 && Math.abs(meio.y) < 1;
         const aoCentro = Math.hypot(meio.x, meio.y);
-        if (naTela && aoCentro < distanciaAoCentro) {
+        if (naTela && aoCentro < 0.5 && aoCentro < distanciaAoCentro) {
           distanciaAoCentro = aoCentro;
           escolhida = lapide;
         }
       }
 
-      const zoom = escolhida ? aproximacaoDaPedra(THREE, group, escolhida.pedra, camera) : 0;
-      const mira = THREE.MathUtils.clamp(1 - distanciaAoCentro / 0.65, 0, 1);
+      const novoFoco = escolhida?.id ?? null;
+      if (novoFoco !== focoId) {
+        focoId = novoFoco;
+        opcoes.aoMudarFoco?.(escolhida ? { id: escolhida.id, nome: escolhida.nome } : null);
+      }
+
       const passo = Math.min(1, delta * 8);
 
       for (const lapide of lapides) {
-        const alvo = lapide === escolhida ? Math.min(1, zoom * mira * 1.4) : 0;
+        const alvo = lapide.id === fraseId ? 1 : 0;
         lapide.material.opacity += (alvo - lapide.material.opacity) * passo;
         lapide.letreiro.visible = lapide.material.opacity > 0.04;
         const escala = 0.75 + lapide.material.opacity * 0.25;
@@ -173,21 +195,6 @@ export function criarCemiterio(
       }
     },
   };
-}
-
-/** Altura da pedra na tela: 0 de longe, 1 quando o celular está a uns 20 cm. */
-function aproximacaoDaPedra(
-  THREE: ThreeModule,
-  group: Group,
-  pedra: Mesh,
-  camera: Camera,
-) {
-  const baixo = new THREE.Vector3(pedra.position.x, 0, pedra.position.z);
-  const cima = new THREE.Vector3(pedra.position.x, ALTURA_PEDRA, pedra.position.z);
-  group.localToWorld(baixo).project(camera);
-  group.localToWorld(cima).project(camera);
-  const altura = Math.hypot(baixo.x - cima.x, baixo.y - cima.y);
-  return THREE.MathUtils.clamp((altura - 0.42) / 0.2, 0, 1);
 }
 
 function texturaDeCanvas(THREE: ThreeModule, canvas: HTMLCanvasElement) {
