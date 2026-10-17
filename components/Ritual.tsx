@@ -18,8 +18,8 @@ export function Ritual({ acao }: RitualProps) {
         </h1>
         <p className="mt-5 max-w-md font-sans text-lg leading-7 text-bone/75">
           Deite o círculo no centro da sobremesa e toque em Posicionar. As
-          lápides ficam fincadas na mesa. Aponte para uma e toque em Ler a
-          lápide para a frase aparecer em cima da pedra.
+          lápides ficam fincadas na mesa: ande em volta e chegue perto de uma
+          para a frase aparecer em cima da pedra.
         </p>
       </header>
       {acao ? <div className="relative mt-8">{acao}</div> : null}

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AMIGOS } from "@/lib/amigos";
-import { criarCemiterio, type FocoLapide } from "@/lib/cena";
+import { criarCemiterio } from "@/lib/cena";
 import { tocarMusica } from "@/lib/musica";
 import { loadThree } from "@/lib/three";
 import { loadXr8, type TrackingStatus, type XR8 } from "@/lib/xr8";
@@ -21,12 +21,9 @@ export function Cemiterio({ onSair }: CemiterioProps) {
   const palcoRef = useRef<HTMLDivElement>(null);
   const posicionarRef = useRef<(() => void) | null>(null);
   const reposicionarRef = useRef<(() => void) | null>(null);
-  const mostrarFraseRef = useRef<(id: string | null) => void>(() => {});
   const [fase, setFase] = useState<Fase>("carregando");
   const [noChao, setNoChao] = useState(false);
   const [rastreio, setRastreio] = useState<TrackingStatus | null>(null);
-  const [foco, setFoco] = useState<FocoLapide | null>(null);
-  const [fraseAberta, setFraseAberta] = useState<string | null>(null);
 
   useEffect(() => {
     const palco = palcoRef.current;
@@ -63,12 +60,7 @@ export function Cemiterio({ onSair }: CemiterioProps) {
         xr8 = motor;
         window.THREE = { ...THREE };
 
-        const cemiterio = criarCemiterio(THREE, AMIGOS, {
-          aoMudarFoco: (proxima) => {
-            if (!parado) setFoco(proxima);
-          },
-        });
-        mostrarFraseRef.current = cemiterio.mostrarFrase;
+        const cemiterio = criarCemiterio(THREE, AMIGOS);
         cemiterio.group.visible = false;
         const circulo = new THREE.Group();
         const aro = new THREE.Mesh(
@@ -125,8 +117,6 @@ export function Cemiterio({ onSair }: CemiterioProps) {
         reposicionarRef.current = () => {
           colocado = false;
           cemiterio.group.visible = false;
-          cemiterio.mostrarFrase(null);
-          setFraseAberta(null);
           setFase("mirando");
         };
 
@@ -204,7 +194,6 @@ export function Cemiterio({ onSair }: CemiterioProps) {
       window.removeEventListener("resize", encaixarCanvas);
       posicionarRef.current = null;
       reposicionarRef.current = null;
-      mostrarFraseRef.current = () => {};
       if (xr8) {
         xr8.stop();
         xr8.clearCameraPipelineModules();
@@ -236,28 +225,13 @@ export function Cemiterio({ onSair }: CemiterioProps) {
           </button>
         ) : null}
         {fase === "colocado" ? (
-          <>
-            <button
-              type="button"
-              disabled={!foco && fraseAberta === null}
-              onClick={() => {
-                tocarMusica();
-                const proxima = fraseAberta === foco?.id ? null : (foco?.id ?? null);
-                mostrarFraseRef.current(proxima);
-                setFraseAberta(proxima);
-              }}
-              className="h-14 w-full max-w-sm rounded-full bg-ember font-sans text-base text-bone disabled:opacity-40"
-            >
-              {rotuloDaFrase(foco, fraseAberta)}
-            </button>
-            <button
-              type="button"
-              onClick={() => reposicionarRef.current?.()}
-              className="h-12 rounded-full border border-bone/30 bg-ink/80 px-5 font-sans text-sm"
-            >
-              Reposicionar
-            </button>
-          </>
+          <button
+            type="button"
+            onClick={() => reposicionarRef.current?.()}
+            className="h-12 rounded-full border border-bone/30 bg-ink/80 px-5 font-sans text-sm"
+          >
+            Reposicionar
+          </button>
         ) : null}
         <button
           type="button"
@@ -287,12 +261,5 @@ function legenda(fase: Fase, noChao: boolean, rastreio: TrackingStatus | null) {
     return "Aponte para baixo até o círculo deitar no centro da sobremesa.";
   }
   if (fase === "mirando") return "Círculo no centro? Toque em Posicionar o cemitério.";
-  return "Aponte para uma lápide e toque em Ler a lápide. A frase aparece em cima da pedra.";
-}
-
-function rotuloDaFrase(foco: FocoLapide | null, fraseAberta: string | null) {
-  if (foco && fraseAberta === foco.id) return "Esconder a frase";
-  if (foco) return `Ler a lápide de ${foco.nome}`;
-  if (fraseAberta) return "Esconder a frase";
-  return "Aponte para uma lápide";
+  return "Ande e aproxime o celular. Perto de uma lápide, a frase aparece em cima dela.";
 }

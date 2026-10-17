@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { AMIGOS } from "@/lib/amigos";
-import { criarCemiterio, type FocoLapide } from "@/lib/cena";
-import { tocarMusica } from "@/lib/musica";
+import { criarCemiterio } from "@/lib/cena";
 import { loadThree } from "@/lib/three";
 
 const LONGE = 5;
@@ -13,9 +12,6 @@ const PERTO = 1.6;
 export function Maquete() {
   const palcoRef = useRef<HTMLDivElement>(null);
   const distanciaRef = useRef(LONGE);
-  const mostrarFraseRef = useRef<(id: string | null) => void>(() => {});
-  const [foco, setFoco] = useState<FocoLapide | null>(null);
-  const [fraseAberta, setFraseAberta] = useState<string | null>(null);
 
   useEffect(() => {
     const palco = palcoRef.current;
@@ -46,12 +42,7 @@ export function Maquete() {
       travessa.scale.set(2, 1.25, 1);
       scene.add(travessa);
 
-      const cemiterio = criarCemiterio(THREE, AMIGOS, {
-        aoMudarFoco: (proxima) => {
-          if (!parado) setFoco(proxima);
-        },
-      });
-      mostrarFraseRef.current = cemiterio.mostrarFrase;
+      const cemiterio = criarCemiterio(THREE, AMIGOS);
       scene.add(cemiterio.group);
       cemiterio.surgir();
 
@@ -106,27 +97,8 @@ export function Maquete() {
       <div ref={palcoRef} className="absolute inset-0" />
       <div className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 px-4 pb-6">
         <p className="max-w-sm rounded-full bg-ink/80 px-4 py-2 text-center font-sans text-sm">
-          Aponte o centro para uma lápide e toque em Ler a lápide.
+          Arraste para chegar perto de uma lápide. A frase nasce em cima dela.
         </p>
-        <button
-          type="button"
-          disabled={!foco && fraseAberta === null}
-          onClick={() => {
-            tocarMusica();
-            const proxima = fraseAberta === foco?.id ? null : (foco?.id ?? null);
-            mostrarFraseRef.current(proxima);
-            setFraseAberta(proxima);
-          }}
-          className="h-14 w-full max-w-sm rounded-full bg-ember font-sans text-base text-bone disabled:opacity-40"
-        >
-          {foco && fraseAberta === foco.id
-            ? "Esconder a frase"
-            : foco
-              ? `Ler a lápide de ${foco.nome}`
-              : fraseAberta
-                ? "Esconder a frase"
-                : "Aponte para uma lápide"}
-        </button>
         <label className="flex w-full max-w-xs items-center gap-3 rounded-full bg-ink/80 px-4 py-2 font-sans text-xs tracking-wide text-bone/80 uppercase">
           Aproximar
           <input
