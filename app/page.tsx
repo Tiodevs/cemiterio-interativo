@@ -1,5 +1,5 @@
-import { Ritual } from "@/components/Ritual";
+import { Experiencia } from "@/components/Experiencia";
 
 export default function Home() {
-  return <Ritual />;
+  return <Experiencia />;
 }

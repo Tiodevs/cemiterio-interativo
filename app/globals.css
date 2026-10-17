@@ -32,3 +32,13 @@ button,
 a {
   -webkit-tap-highlight-color: transparent;
 }
+
+.ar-stage video {
+  z-index: 1 !important;
+}
+
+.ar-stage canvas,
+.ar-stage > div {
+  z-index: 2 !important;
+  pointer-events: none;
+}

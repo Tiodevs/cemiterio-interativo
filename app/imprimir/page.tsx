@@ -18,6 +18,8 @@ export default function ImprimirPage() {
           tem {LARGURA_MARCADOR_CM} cm. Recorte, plastifique fosco e deite o
           brasão virado para cima no meio da sobremesa.
         </p>
+        {/* O quadrado precisa sair com 10 cm reais. O otimizador do Next altera o tamanho. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/markers/centro.png"
           alt="Brasão assimétrico para a câmera reconhecer"
