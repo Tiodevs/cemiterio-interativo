@@ -6,8 +6,8 @@ import { AMIGOS } from "@/lib/amigos";
 import { criarCemiterio } from "@/lib/cena";
 import { loadThree } from "@/lib/three";
 
-const LONGE = 12;
-const PERTO = 3.2;
+const LONGE = 8;
+const PERTO = 2.3;
 
 export function Maquete() {
   const palcoRef = useRef<HTMLDivElement>(null);
@@ -39,7 +39,7 @@ export function Maquete() {
         new THREE.MeshBasicMaterial({ color: "#e7a3b6" }),
       );
       travessa.rotation.x = -Math.PI / 2;
-      travessa.scale.set(3.6, 2.9, 1);
+      travessa.scale.set(2.45, 2.15, 1);
       scene.add(travessa);
 
       const cemiterio = criarCemiterio(THREE, AMIGOS);
@@ -67,7 +67,7 @@ export function Maquete() {
       const desenhar = () => {
         const distancia = distanciaRef.current;
         const perto = THREE.MathUtils.clamp((LONGE - distancia) / (LONGE - PERTO), 0, 1);
-        alvo.set(0, 0.2 + perto * 0.16, perto * 1.15);
+        alvo.set(0, 0.2 + perto * 0.16, perto * 0.85);
         camera.position.copy(alvo).addScaledVector(direcao, distancia);
         camera.lookAt(alvo);
         cemiterio.update(camera, relogio.getDelta());

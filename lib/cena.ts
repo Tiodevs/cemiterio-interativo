@@ -11,8 +11,11 @@ export type CenaCemiterio = {
 };
 
 /** 1 unidade = 10 cm. O chão da cena (y = 0) é a superfície da sobremesa. */
-const RAIO_X = 2.5;
-const RAIO_Z = 2;
+const NO_ANEL = 6;
+const ANEL_X = 1.72;
+const ANEL_Z = 1.48;
+const MIOLO_X = 0.72;
+const MIOLO_Z = 0.6;
 const LARGURA_PEDRA = 0.85;
 const ALTURA_PEDRA = 1.22;
 
@@ -32,7 +35,7 @@ export function criarCemiterio(
   const texturaMorcego = texturaDeCanvas(THREE, desenharMorcego());
 
   const terra = new THREE.Mesh(
-    new THREE.CircleGeometry(1.3, 64),
+    new THREE.CircleGeometry(1, 64),
     new THREE.MeshBasicMaterial({
       color: 0x1a120e,
       transparent: true,
@@ -41,12 +44,12 @@ export function criarCemiterio(
     }),
   );
   terra.rotation.x = -Math.PI / 2;
-  terra.scale.set(RAIO_X, RAIO_Z, 1);
+  terra.scale.set(ANEL_X * 1.22, ANEL_Z * 1.38, 1);
   terra.position.y = 0.002;
   group.add(terra);
 
   const anel = new THREE.Mesh(
-    new THREE.RingGeometry(0.94, 1, 64),
+    new THREE.RingGeometry(0.9, 0.98, 64),
     new THREE.MeshBasicMaterial({
       color: 0x1a120e,
       transparent: true,
@@ -56,12 +59,12 @@ export function criarCemiterio(
     }),
   );
   anel.rotation.x = -Math.PI / 2;
-  anel.scale.set(RAIO_X, RAIO_Z, 1);
+  anel.scale.set(ANEL_X, ANEL_Z, 1);
   anel.position.y = 0.004;
   group.add(anel);
 
   amigos.forEach((amigo, index) => {
-    const angulo = (index / amigos.length) * Math.PI * 2 + Math.PI / 2;
+    const [x, z] = lugarDaPedra(index, amigos.length);
     const geometria = new THREE.PlaneGeometry(LARGURA_PEDRA, ALTURA_PEDRA);
     geometria.translate(0, ALTURA_PEDRA / 2, 0);
     const pedra = new THREE.Mesh(
@@ -73,7 +76,7 @@ export function criarCemiterio(
         side: THREE.DoubleSide,
       }),
     );
-    pedra.position.set(Math.cos(angulo) * RAIO_X, 0, Math.sin(angulo) * RAIO_Z);
+    pedra.position.set(x, 0, z);
 
     const material = new THREE.MeshBasicMaterial({
       map: texturaDeCanvas(THREE, desenharFrase(amigo.frase)),
@@ -103,7 +106,7 @@ export function criarCemiterio(
         side: THREE.DoubleSide,
       }),
     );
-    morcego.position.set(Math.cos(angulo) * 0.55, 1.64 + index * 0.12, Math.sin(angulo) * 0.4);
+    morcego.position.set(Math.cos(angulo) * 1.05, 1.85 + index * 0.1, Math.sin(angulo) * 0.85);
     morcegos.add(morcego);
   }
   group.add(morcegos);
@@ -188,6 +191,19 @@ function aproximacaoDaPedra(
   group.localToWorld(cima).project(camera);
   const altura = Math.hypot(baixo.x - cima.x, baixo.y - cima.y);
   return THREE.MathUtils.clamp((altura - 0.48) / 0.16, 0, 1);
+}
+
+/** Seis no anel e o restante no miolo, entre as pedras de fora. */
+function lugarDaPedra(index: number, total: number): [number, number] {
+  const noAnel = Math.min(NO_ANEL, Math.max(total - 1, 1));
+  const noMiolo = total - noAnel;
+  if (index < noAnel || noMiolo <= 0) {
+    const angulo = (index / noAnel) * Math.PI * 2 + Math.PI / 2;
+    return [Math.cos(angulo) * ANEL_X, Math.sin(angulo) * ANEL_Z];
+  }
+  const miolo = index - noAnel;
+  const angulo = (miolo / noMiolo) * Math.PI * 2 + Math.PI / 2 + Math.PI / noAnel;
+  return [Math.cos(angulo) * MIOLO_X, Math.sin(angulo) * MIOLO_Z];
 }
 
 function texturaDeCanvas(THREE: ThreeModule, canvas: HTMLCanvasElement) {
