@@ -11,8 +11,8 @@ export type CenaCemiterio = {
 };
 
 /** 1 unidade = 10 cm. O chão da cena (y = 0) é a superfície da sobremesa. */
-const RAIO_X = 1;
-const RAIO_Z = 0.7;
+const RAIO_X = 2.5;
+const RAIO_Z = 2;
 const LARGURA_PEDRA = 0.85;
 const ALTURA_PEDRA = 1.22;
 
@@ -220,9 +220,14 @@ function desenharLapide(amigo: Amigo) {
   ctx.restore();
 
   ctx.fillStyle = "#f3e6c8";
-  ctx.font = "600 78px Georgia, serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
+  let tamanho = 78;
+  ctx.font = `600 ${tamanho}px Georgia, serif`;
+  while (ctx.measureText(amigo.nome).width > 320 && tamanho > 40) {
+    tamanho -= 2;
+    ctx.font = `600 ${tamanho}px Georgia, serif`;
+  }
   ctx.fillText(amigo.nome, 256, 560);
   return canvas;
 }
@@ -294,13 +299,19 @@ function desenharFrase(frase: string) {
   ctx.roundRect(20, 70, 984, 244, 40);
   ctx.fill();
   ctx.fillStyle = "#f3e6c8";
-  ctx.font = "600 58px Georgia, serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  const linhas = quebrarLinhas(ctx, frase, 900);
-  const topo = 192 - ((linhas.length - 1) * 68) / 2;
+  let tamanho = 58;
+  let linhas = quebrarLinhas(ctx, frase, 900, tamanho);
+  while (linhas.length > 3 && tamanho > 40) {
+    tamanho -= 4;
+    linhas = quebrarLinhas(ctx, frase, 900, tamanho);
+  }
+  ctx.font = `600 ${tamanho}px Georgia, serif`;
+  const entrelinha = tamanho + 12;
+  const topo = 192 - ((linhas.length - 1) * entrelinha) / 2;
   linhas.forEach((linha, index) => {
-    ctx.fillText(linha, 512, topo + index * 68);
+    ctx.fillText(linha, 512, topo + index * entrelinha);
   });
   return canvas;
 }
@@ -309,7 +320,9 @@ function quebrarLinhas(
   ctx: CanvasRenderingContext2D,
   frase: string,
   largura: number,
+  tamanho: number,
 ) {
+  ctx.font = `600 ${tamanho}px Georgia, serif`;
   const linhas: string[] = [];
   let atual = "";
   for (const palavra of frase.split(" ")) {
@@ -322,7 +335,7 @@ function quebrarLinhas(
     }
   }
   if (atual) linhas.push(atual);
-  return linhas.slice(0, 3);
+  return linhas;
 }
 
 function desenharMorcego() {

@@ -7,29 +7,50 @@ export type Amigo = {
   simbolo: Simbolo;
 };
 
-export const AMIGOS: Amigo[] = [
+const SIMBOLOS: Simbolo[] = ["lua", "morcego", "aranha", "vela"];
+
+const PESSOAS: { nome: string; frase: string }[] = [
   {
-    id: "aurora",
-    nome: "Aurora",
-    frase: "Aqui jaz quem pedia só mais cinco minutinhos.",
-    simbolo: "lua",
+    nome: "Jonas",
+    frase: "Morreu enviando uma figurinha do Leonardo Dicaprio",
   },
   {
-    id: "bruno",
-    nome: "Bruno",
-    frase: "Morreu de rir da própria piada. De novo.",
-    simbolo: "morcego",
+    nome: "Jaque",
+    frase: "Morreu de triste com o fim da carreira da Ariana Grande",
   },
   {
-    id: "caio",
-    nome: "Caio",
-    frase: "Disse que já estava descendo. O túmulo ainda espera.",
-    simbolo: "aranha",
+    nome: "Leo",
+    frase: "Morreu de tanto batizar",
   },
   {
-    id: "diana",
-    nome: "Diana",
-    frase: "Sumiu na hora da louça. Desta vez, para sempre.",
-    simbolo: "vela",
+    nome: "Felipe",
+    frase: "Morreu depois de ficar 4 dias programando sem parar",
+  },
+  {
+    nome: "Ludi",
+    frase: "Morreu depois de declarar o IR de todos os macacos",
+  },
+  {
+    nome: "Tone",
+    frase: "Morreu depois de beber 30 Pepis",
+  },
+  {
+    nome: "Fransisco",
+    frase: "Morreu ao trabalhar em 10 empregos em uma semana",
+  },
+  {
+    nome: "Pedro",
+    frase: "Morreu ao tentar farmar aura",
+  },
+  {
+    nome: "Vittoria",
+    frase: "Morreu lutando contra um urso canadense",
   },
 ];
+
+export const AMIGOS: Amigo[] = PESSOAS.map((pessoa, index) => ({
+  id: pessoa.nome.toLowerCase(),
+  nome: pessoa.nome,
+  frase: pessoa.frase,
+  simbolo: SIMBOLOS[index % SIMBOLOS.length],
+}));
