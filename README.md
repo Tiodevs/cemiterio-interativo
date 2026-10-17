@@ -1,6 +1,6 @@
 # Cemitério interativo
 
-WebAR de Halloween. A pessoa deita um círculo no centro da sobremesa, toca em **Posicionar o cemitério**, e quatro lápides ficam fincadas na mesa. Dá para andar em volta. Com uma lápide no centro da tela, **Ler a lápide** mostra a frase em cima da pedra.
+WebAR de Halloween. A pessoa deita um círculo no centro da sobremesa, toca em **Posicionar o cemitério**, e quatro lápides ficam fincadas na mesa. Dá para andar em volta e chegar perto: ao lado de uma pedra, a frase de efeito surge em cima dela.
 
 Esta versão usa quatro pessoas genéricas. Os nomes e as frases ficam em `lib/amigos.ts`.
 
@@ -12,7 +12,7 @@ npm run dev
 ```
 
 - `/` abre a entrada, a lista de túmulos e o botão da câmera.
-- `/maquete` mostra o cemitério sem câmera. **Ler a lápide** revela a frase.
+- `/maquete` mostra o cemitério sem câmera. O controle **Aproximar** revela a frase.
 
 ## Na festa
 
@@ -20,7 +20,7 @@ npm run dev
 2. Toque em **Entrar no cemitério** e aceite a câmera e o movimento do celular.
 3. Comece com o celular a uns 35 cm da sobremesa, apontado para ela.
 4. Mexa devagar até o círculo deitar no centro e toque em **Posicionar o cemitério**.
-5. Ande em volta, aponte para uma lápide e toque em **Ler a lápide**. **Reposicionar** devolve o círculo.
+5. Ande em volta e aproxime o celular. **Reposicionar** devolve o círculo.
 
 Ao entrar, começa a trilha em `public/audio/suspense.mp3`. O celular só libera o som nesse toque.
 
