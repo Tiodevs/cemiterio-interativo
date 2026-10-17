@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import { Cemiterio } from "@/components/Cemiterio";
 import { Ritual } from "@/components/Ritual";
 import { loadThree } from "@/lib/mindar";
-import { pedirPermissaoDeOrientacao } from "@/lib/orientacao";
+import { pedirMovimento } from "@/lib/permissoes";
+import { loadXr8 } from "@/lib/xr8";
 
 export function Experiencia() {
   const [naCamera, setNaCamera] = useState(false);
@@ -26,7 +27,9 @@ export function Experiencia() {
           <button
             type="button"
             onClick={() => {
-              void entrar(setNaCamera, setErro);
+              const movimento = pedirMovimento();
+              void loadXr8().catch(() => undefined);
+              void entrar(movimento, setNaCamera, setErro);
             }}
             className="h-14 rounded-full bg-ember px-6 font-sans text-base text-bone"
           >
@@ -48,11 +51,20 @@ export function Experiencia() {
 }
 
 async function entrar(
+  movimento: Promise<unknown[]>,
   abrir: (valor: boolean) => void,
   avisar: (mensagem: string | null) => void,
 ) {
   if (!navigator.mediaDevices?.getUserMedia) {
     avisar("Este navegador não libera a câmera. Use a lista ou a maquete.");
+    return;
+  }
+
+  const respostas = await movimento;
+  if (respostas.includes("denied")) {
+    avisar(
+      "O movimento do celular ficou bloqueado. Sem ele as lápides não ficam presas na mesa.",
+    );
     return;
   }
 
@@ -62,7 +74,6 @@ async function entrar(
       video: { facingMode: { ideal: "environment" } },
     });
     stream.getTracks().forEach((trilha) => trilha.stop());
-    await pedirPermissaoDeOrientacao();
     avisar(null);
     abrir(true);
   } catch {
