@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+:root {
+  --background: #140e0c;
+  --foreground: #f3e6c8;
+  --bone: #f3e6c8;
+  --moss: #8ea37a;
+  --ember: #c4553a;
+  --stone: #2c2623;
+  --ink: #1a120e;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-bone: var(--bone);
+  --color-moss: var(--moss);
+  --color-ember: var(--ember);
+  --color-stone: var(--stone);
+  --color-ink: var(--ink);
+  --font-serif: var(--font-fraunces);
+  --font-sans: var(--font-outfit);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-outfit), sans-serif;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
