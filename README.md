@@ -1,6 +1,6 @@
 # Cemitério interativo
 
-WebAR de Halloween. Um brasão deitado no centro da sobremesa segura quatro lápides digitais. De longe aparecem os nomes. Perto de uma pedra, a frase de efeito surge em cima dela.
+WebAR de Halloween. A pessoa aponta um círculo para o centro da sobremesa, toca em Pronto, e quatro lápides ficam fincadas nesse ponto. Perto de uma pedra, a frase de efeito surge em cima dela.
 
 Esta versão usa quatro pessoas genéricas. Os nomes e as frases ficam em `lib/amigos.ts`.
 
@@ -13,25 +13,14 @@ npm run dev
 
 - `/` abre a entrada, a lista de túmulos e o botão da câmera.
 - `/maquete` mostra o cemitério sem câmera. O controle **Aproximar** revela a frase.
-- `/imprimir` gera o brasão com 10 cm de lado.
 
-## Imprimir e usar na festa
+## Na festa
 
-1. Abra `/imprimir` e imprima em **100%**, sem ajustar à página.
-2. O quadrado tem 10 cm. Recorte, plastifique fosco e deite o brasão **virado para cima** no meio do doce, sobre uma base que não afunde.
-3. O QR da mesa é outro papel: ele só abre o endereço do site. Não use o QR como marcador.
-4. No celular, toque em **Entrar no cemitério** e aponte para o brasão. Suba e desça o aparelho ainda com o centro no quadro. Se o brasão sair da imagem, o cemitério some.
+1. O QR da mesa só abre o endereço HTTPS da Vercel.
+2. Toque em **Entrar no cemitério** e aceite a câmera e o movimento do celular.
+3. Incline o aparelho até o círculo deitar no centro da sobremesa e toque em **Pronto**.
+4. Mexa o celular para olhar as lápides. Chegue perto de uma para a frase aparecer.
 
-A câmera do celular exige HTTPS. No computador, `localhost` basta. Para a festa, publique na Vercel e aponte o QR para essa URL.
+O círculo não depende mais do brasão impresso. Se a pessoa andar para o outro lado da mesa, o giro do celular não acompanha o passo: o encaixe vale para quem está olhando de onde tocou em Pronto.
 
-Uma luz em cima da travessa ajuda o rastreio. Luz roxa muito fraca atrapalha.
-
-## Trocar o brasão
-
-O desenho está em `public/markers/centro.svg`. Para gerar o PNG e o alvo do MindAR de novo:
-
-```bash
-npm run compile:marker
-```
-
-O script usa o Google Chrome instalado nesta máquina. Se o brasão mudar e o `.mind` não for recompilado, a câmera deixa de reconhecer.
+A câmera do celular exige HTTPS. No computador, `localhost` basta.
